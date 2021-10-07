@@ -8,7 +8,7 @@ Brainstorming - What exactly do I want to make?:
  - Player vs. Artificially Intelligent Hostiles.
  - CURRENT PROTOTYPE IDEA: aLife simulator - 2D agents with custom genome coding (what kind of genomes? - t.b.d)
 
-Some questions - these may seem all over the place, so please excuse the lack of organization:
+Questions and what not - these may seem all over the place, so please excuse the lack of organization:
   - What governs the way life behaves?
     - Fitness Functions - scoring based on how agents meet an objective
       - Weighting different fitness functions (minor objectives), which are tuned to follow certain major objectives over time.
@@ -16,6 +16,13 @@ Some questions - these may seem all over the place, so please excuse the lack of
         - 
   - How does life adapt (physically) to its environment, how can we emulate certain physical processes, and do so that we see extremely complex
   emergent behaviour (i.e communication, altruism, etc.)
+
+  - Ideas for certain mechanisms:
+    - Populate world with different sources of energy, each with its own way of being harnessed.
+    The agents should eventually learn to harness these sources of energy for survival, with the help
+    of mutation.
+    - A toy simulation of abiogenesis?
+
    
 Research - Algorithms, theory, previous implementations and works: 
  - NEAT
