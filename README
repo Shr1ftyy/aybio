@@ -1,0 +1,28 @@
+aybio - ARTIFICIAL LIFE SIM
+
+Brainstorming - What exactly do I want to make?:
+ - A player-agent-environment interaction-based game - more exploration than exploitation for the agent to do?
+ - A more advanced version of Conway's Game of Life - food, random events, player-populus interaction, etc.
+ - An aLife engine - recreating biological phenoma algorithmically.
+ - micro-AI-based RTS game (units are intelligent).
+ - Player vs. Artificially Intelligent Hostiles.
+ - CURRENT PROTOTYPE IDEA: aLife simulator - 2D agents with custom genome coding (what kind of genomes? - t.b.d)
+
+Some questions - these may seem all over the place, so please excuse the lack of organization:
+  - What governs the way life behaves?
+    - Fitness Functions - scoring based on how agents meet an objective
+      - Weighting different fitness functions (minor objectives), which are tuned to follow certain major objectives over time.
+      It would be interesting to implement functions that manipulate an agent's desires - exploration vs. exploitation ?
+        - 
+  - How does life adapt (physically) to its environment, how can we emulate certain physical processes, and do so that we see extremely complex
+  emergent behaviour (i.e communication, altruism, etc.)
+   
+Research - Algorithms, theory, previous implementations and works: 
+ - NEAT
+ - Polyworld
+ - Creatures game franchise
+
+General TODOs:
+  - Look into emergent communication between RL agents.
+  - Start prototyping... Soon™.
+
