@@ -6,6 +6,8 @@ import pickle
 from OpenGL.arrays import vbo
 import numpy as np
 
+#TODO: Figure out how to capture multiple viewports
+
 
 # This is just a dummy class to play around with random position updates in OpenGL for
 # creatures' hitboxes. It will be renamed or completely removed once the final version

@@ -7,6 +7,7 @@ import OpenGL.GL as gl # python wrapping of OpenGL
 from OpenGL import GLU # OpenGL Utility Library, extends OpenGL functionality
 import sys # we'll need this later to run our Qt application
 import random as r
+from datetime import datetime
 
 from world import World
 from creatures import Creature
@@ -20,6 +21,8 @@ class GLWidget(QtOpenGL.QGLWidget):
     self.parent = parent
     QtOpenGL.QGLWidget.__init__(self, parent)
     self.world = World()
+    self.FPS = 0
+    self.parent = parent
 
   def initializeGL(self):
     self.qglClearColor(QtGui.QColor(1, 100, 128)) # initialize the screen to blue
@@ -33,6 +36,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     self.rotZ = INIT_ROT_Z
     self.zoom = ZOOM_SCALE
     self.t = 0 
+    self.nb_frames = 0
 
   def resizeGL(self, width, height):
     gl.glViewport(0, 0, width, height)
@@ -44,6 +48,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     gl.glMatrixMode(gl.GL_MODELVIEW)
 
   def paintGL(self):
+    self.start_time = datetime.now()
     gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
     gl.glPushMatrix() # push the current matrix to the current stack
@@ -58,7 +63,12 @@ class GLWidget(QtOpenGL.QGLWidget):
     self.world.update()
     self.updateLife()
     self.t += 1
-
+    time_passed = datetime.now() - self.start_time
+    # print(time_passed.microseconds/1000)
+    self.FPS = 1000.0/(time_passed.microseconds/1000)
+    self.parent.fps_counter.setText(str(int(self.FPS)) + ' FPS')
+    self.parent.fps_counter.resize(int(self.parent.width()/5), int(self.parent.height()/5))
+    self.parent.repaint()
 
     gl.glPopMatrix() # restore the previous modelview matrix
 
@@ -66,7 +76,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     minSize = 3
     maxSize = 15
     self.creatures = []
-    for i in range(100):
+    for i in range(NUM_CREATURES):
       # moves = np.array([[r.randint(-1,1), r.randint(-1,1), r.randint(-1,1)] for i in range(1000)])
       init_pos = np.array([r.randint(-150, 150), r.randint(-150, 150), r.randint(-150, 150)])
       size = 3 + r.random()*(maxSize - minSize)
@@ -132,6 +142,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     gui_layout.addWidget(self.glWidget)
 
+    self.fps_counter = QtWidgets.QLabel(self)
+    self.fps_counter.setText(str(self.glWidget.FPS) + ' FPS')
+    self.fps_counter.resize(int(self.width()/5), int(self.height()/5))
+
     sliderX = QtWidgets.QSlider(QtCore.Qt.Horizontal)
     sliderX.setMinimum(0)
     sliderX.setMaximum(360)
@@ -160,6 +174,7 @@ class MainWindow(QtWidgets.QMainWindow):
     gui_layout.addWidget(sliderY)
     gui_layout.addWidget(sliderZ)
     gui_layout.addWidget(sliderW)
+    gui_layout.addWidget(self.fps_counter)
 
   # def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
   #   if event.buttons() == QtCore.Qt.RightButton:
