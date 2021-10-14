@@ -1,5 +1,7 @@
 aybio - ARTIFICIAL LIFE SIM
 
+MORE INFORMATION AT: https://drive.google.com/file/d/1sqmgZEO1A9cCkoR4CbeYUBjDPnc4PhDZ/view?usp=sharing
+
 Brainstorming - What exactly do I want to make?:
  - A player-agent-environment interaction-based game - more exploration than exploitation for the agent to do?
  - A more advanced version of Conway's Game of Life - food, random events, player-populus interaction, etc.
@@ -13,7 +15,6 @@ Questions and what not - these may seem all over the place, so please excuse the
     - Fitness Functions - scoring based on how agents meet an objective
       - Weighting different fitness functions (minor objectives), which are tuned to follow certain major objectives over time.
       It would be interesting to implement functions that manipulate an agent's desires - exploration vs. exploitation ?
-        - 
   - How does life adapt (physically) to its environment, how can we emulate certain physical processes, and do so that we see extremely complex
   emergent behaviour (i.e communication, altruism, etc.)
 
@@ -25,11 +26,11 @@ Questions and what not - these may seem all over the place, so please excuse the
 
    
 Research - Algorithms, theory, previous implementations and works: 
- - NEAT
- - Polyworld
+ - NEAT: https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.4591&rank=1&q=NEAT&osm=&ossid=
+ - Polyworld: http://shinyverse.org/larryy/Polyworld.html
  - Creatures game franchise
+ - Automatic Goal Generation: https://arxiv.org/pdf/1705.06366.pdf
 
 General TODOs:
   - Look into emergent communication between RL agents.
-  - Start prototyping... Soon™.
 
