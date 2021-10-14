@@ -40,7 +40,7 @@ class GLWidget(QtOpenGL.QGLWidget):
     gl.glLoadIdentity()
     aspect = width / float(height)
 
-    GLU.gluPerspective(45.0, aspect, 1.0, 100.0)
+    GLU.gluPerspective(90.0, aspect, 1.0, 500.0)
     gl.glMatrixMode(gl.GL_MODELVIEW)
 
   def paintGL(self):
@@ -62,125 +62,50 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     gl.glPopMatrix() # restore the previous modelview matrix
 
-  def initWorld(self):
-    self.cubeVtxArray = np.array([
-      [-1.0, -1.0, -1.0],
-      [1.0, -1.0, -1.0],
-      [1.0, -1.0, 1.0],
-      [-1.0, -1.0, 1.0]]) * WORLD_SCALER
-    # self.cubeVtxArray += np.array([-0.5, -0.5, -0.5]) * WORLD_SCALER
-
-
-    self.cubeIdxArray = np.array( [0,1,2, 2,3,0 ])
-    self.outlineVtx = np.array((
-    (1, -1, -1),
-    (1, 1, -1),
-    (-1, 1, -1),
-    (-1, -1, -1),
-    (1, -1, 1),
-    (1, 1, 1),
-    (-1, -1, 1),
-    (-1, 1, 1)
-    )) * WORLD_SCALER
-    self.outlineEdges =(
-    (0,1),
-    (0,3),
-    (0,4),
-    (2,1),
-    (2,3),
-    (2,7),
-    (6,3),
-    (6,4),
-    (6,7),
-    (5,1),
-    (5,4),
-    (5,7)
-    )
-
   def initCreatures(self):
     minSize = 3
     maxSize = 15
     self.creatures = []
     for i in range(100):
-      moves = np.array([[r.randint(-1,1), r.randint(-1,1), r.randint(-1,1)] for i in range(1000)])
+      # moves = np.array([[r.randint(-1,1), r.randint(-1,1), r.randint(-1,1)] for i in range(1000)])
       init_pos = np.array([r.randint(-150, 150), r.randint(-150, 150), r.randint(-150, 150)])
       size = 3 + r.random()*(maxSize - minSize)
-      c = Creature(init_pos, moves, size)
+      # c = Creature(init_pos, moves, size)
+      c = Creature(pos=init_pos, size=size)
       self.creatures.append(c)
-
-    gl.glColor3d(1,0,0)
-    for creature in self.creatures:
-      current_pos = creature.pos
-      print(current_pos)
-      hitbox = np.array([
-        [current_pos[0] - (creature.size/2), current_pos[1] - (creature.size/2), current_pos[2] - (creature.size/2)], # 0,0
-        [current_pos[0] + (creature.size/2), current_pos[1] - (creature.size/2), current_pos[2] - (creature.size/2)], # 0,1
-        [current_pos[0] + (creature.size/2), current_pos[1] - (creature.size/2), current_pos[2] + (creature.size/2)], # 0,2
-        [current_pos[0] - (creature.size/2), current_pos[1] - (creature.size/2), current_pos[2] + (creature.size/2)], # 0,3
-        [current_pos[0] - (creature.size/2), current_pos[1] + (creature.size/2), current_pos[2] - (creature.size/2)], # 1,0
-        [current_pos[0] + (creature.size/2), current_pos[1] + (creature.size/2), current_pos[2] - (creature.size/2)], # 1,1
-        [current_pos[0] + (creature.size/2), current_pos[1] + (creature.size/2), current_pos[2] + (creature.size/2)], # 1,2
-        [current_pos[0] - (creature.size/2), current_pos[1] + (creature.size/2), current_pos[2] + (creature.size/2)], # 1,3
-      ])
-      connections = np.array([
-        [0,1], [0,3], [0,4],
-        [1,5], [0,2],
-        [2, 3], [2, 6],
-        [3, 7],
-        [4, 5], [4, 7],
-        [5, 6],
-        [6, 7]
-      ])
-      gl.glColor3d(1,0,0)
-      gl.glBegin(gl.GL_LINES)
-      for conn in connections:
-        for point in conn:
-          gl.glVertex3fv(hitbox[point])
-      gl.glEnd()
 
   def updateLife(self):
     for creature in self.creatures:
-      creature.pos = creature.pos + creature.moves[self.t]
-      current_pos = creature.pos
-      hitbox = np.array([
-        [current_pos[0] - (creature.size/2), current_pos[1] - (creature.size/2), current_pos[2] - (creature.size/2)], # 0,0
-        [current_pos[0] + (creature.size/2), current_pos[1] - (creature.size/2), current_pos[2] - (creature.size/2)], # 0,1
-        [current_pos[0] + (creature.size/2), current_pos[1] - (creature.size/2), current_pos[2] + (creature.size/2)], # 0,2
-        [current_pos[0] - (creature.size/2), current_pos[1] - (creature.size/2), current_pos[2] + (creature.size/2)], # 0,3
-        [current_pos[0] - (creature.size/2), current_pos[1] + (creature.size/2), current_pos[2] - (creature.size/2)], # 1,0
-        [current_pos[0] + (creature.size/2), current_pos[1] + (creature.size/2), current_pos[2] - (creature.size/2)], # 1,1
-        [current_pos[0] + (creature.size/2), current_pos[1] + (creature.size/2), current_pos[2] + (creature.size/2)], # 1,2
-        [current_pos[0] - (creature.size/2), current_pos[1] + (creature.size/2), current_pos[2] + (creature.size/2)], # 1,3
-      ])
-      connections = np.array([
-        [0,1], [0,3], [0,4],
-        [1,5], [0,2],
-        [2, 3], [2, 6],
-        [3, 7],
-        [4, 5], [4, 7],
-        [5, 6],
-        [6, 7]
-      ])
+      creature.move(np.array([r.randint(-1,1), r.randint(-1,1), r.randint(-1,1)]))
+      # creature.move(np.array([1,0,0]))
+      creature.rotate(pitch=np.pi/160, yaw=0, roll=np.pi/160)
+      gl.glColor3d(1,0,1)
       gl.glBegin(gl.GL_LINES)
-      for conn in connections:
+      for conn in creature.hitbox_edges:
         for point in conn:
-          gl.glColor3d(1,0,0)
-          gl.glVertex3fv(hitbox[point])
+          gl.glVertex3fv(creature.hitbox[point])
       gl.glEnd()
 
-    self.t += 1
+      gl.glColor3d(150/255, 0, 30/255)
+      gl.glEnable(gl.GL_POINT_SMOOTH)
+      gl.glPointSize(creature.size/2)
+      gl.glBegin(gl.GL_POINTS)
+      gl.glVertex3fv(creature.eye)
+      gl.glEnd()
+
+
 
   def setRotX(self, val):
-    self.rotX = np.pi * val
+    self.rotX = val
 
   def setRotY(self, val):
-    self.rotY = np.pi * val
+    self.rotY = val
 
   def setRotZ(self, val):
-    self.rotZ = np.pi * val
+    self.rotZ = val
 
   def setZoom(self, val):
-    self.zoom = 0.01 * val
+    self.zoom = val * 0.01
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -208,18 +133,26 @@ class MainWindow(QtWidgets.QMainWindow):
     gui_layout.addWidget(self.glWidget)
 
     sliderX = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+    sliderX.setMinimum(0)
+    sliderX.setMaximum(360)
     sliderX.setValue(INIT_ROT_X)
     sliderX.valueChanged.connect(lambda val: self.glWidget.setRotX(val))
 
     sliderY = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+    sliderY.setMinimum(0)
+    sliderY.setMaximum(360)
     sliderY.setValue(INIT_ROT_Y)
     sliderY.valueChanged.connect(lambda val: self.glWidget.setRotY(val))
 
     sliderZ = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+    sliderZ.setMinimum(0)
+    sliderZ.setMaximum(360)
     sliderZ.setValue(INIT_ROT_Z)
     sliderZ.valueChanged.connect(lambda val: self.glWidget.setRotZ(val))
 
     sliderW = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+    sliderW.setMinimum(1)
+    sliderW.setMaximum(100)
     sliderW.setValue(ZOOM_SCALE)
     sliderW.valueChanged.connect(lambda val: self.glWidget.setZoom(val))
 
