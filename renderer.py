@@ -36,11 +36,10 @@ class GLWidget(QtWidgets.QOpenGLWidget):
     self.rotZ = INIT_ROT_Z
     self.zoom = ZOOM_SCALE
     self.t = 0 
-    self.nb_frames = 0
 
   def resizeGL(self, width, height):
     gl.glViewport(0, 0, width, height)
-    gl.glMatrixMode(gl.GL_PROJECTION)
+    # gl.glMatrixMode(gl.GL_PROJECTION)
     gl.glLoadIdentity()
     aspect = width / float(height)
 
@@ -58,7 +57,6 @@ class GLWidget(QtWidgets.QOpenGLWidget):
     gl.glRotate(self.rotX, 1.0, 0.0, 0.0)
     gl.glRotate(self.rotY, 0.0, 1.0, 0.0)
     gl.glRotate(self.rotZ, 0.0, 0.0, 1.0)
-    # gl.glTranslate(-0.5, -0.5, -0.5) # first, translate cube center to origin
 
     self.world.update()
     self.updateLife()
@@ -71,11 +69,35 @@ class GLWidget(QtWidgets.QOpenGLWidget):
     self.FPS = 1000.0/(time_passed.microseconds/1000)
     self.parent.fps_counter.setText(str(int(self.FPS)) + ' FPS')
     self.parent.fps_counter.resize(int(self.parent.width()/5), int(self.parent.height()/5))
-
     gl.glPopMatrix() # restore the previous modelview matrix
 
+  def updateLife(self):
+    for creature in self.creatures:
+      gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
+      creature.move(np.array([r.randint(-1,1), r.randint(-1,1), r.randint(-1,1)]))
+      # # creature.move(np.array([1,0,0]))
+      creature.rotate(pitch=np.pi/160, yaw=0, roll=np.pi/160)
+      gl.glLineWidth(2.0)
+      gl.glColor3d(1,0,1)
+      creature.hitboxVBO.bind()
+      gl.glVertexPointer(3, gl.GL_FLOAT, 0, creature.hitboxVBO)
+      gl.glDrawElements(gl.GL_LINES, 24, gl.GL_UNSIGNED_INT, creature.hitbox_edges)
+
+      gl.glColor3d(0.75,0,0)
+      gl.glDrawElements(gl.GL_QUADS, 24, gl.GL_UNSIGNED_INT, creature.faces)
+      creature.hitboxVBO.unbind()
+
+      gl.glLineWidth(1.0)
+      gl.glColor3d(0, 0, 0)
+      creature.lookVBO.bind()
+      gl.glVertexPointer(3, gl.GL_FLOAT, 0, creature.lookVBO)
+      gl.glDrawElements(gl.GL_LINES, 2, gl.GL_UNSIGNED_INT, np.array([0,1]))
+      gl.glDisableClientState(gl.GL_VERTEX_ARRAY)  
+      creature.lookVBO.unbind()
+
+
   def initCreatures(self):
-    minSize = 3
+    minSize = 1
     maxSize = 15
     self.creatures = []
     for i in range(NUM_CREATURES):
@@ -85,43 +107,6 @@ class GLWidget(QtWidgets.QOpenGLWidget):
       # c = Creature(init_pos, moves, size)
       c = Creature(pos=init_pos, size=size)
       self.creatures.append(c)
-
-  def updateLife(self):
-    for creature in self.creatures:
-      creature.move(np.array([r.randint(-1,1), r.randint(-1,1), r.randint(-1,1)]))
-      # creature.move(np.array([1,0,0]))
-      creature.rotate(pitch=np.pi/160, yaw=0, roll=np.pi/160)
-      gl.glLineWidth(2.0)
-      gl.glColor3d(1,0,1)
-      gl.glBegin(gl.GL_LINES)
-      for conn in creature.hitbox_edges:
-        for point in conn:
-          gl.glVertex3fv(creature.hitbox[point])
-      gl.glEnd()
-
-      gl.glLineWidth(1.0)
-      gl.glColor3d(0, 0, 0)
-      gl.glBegin(gl.GL_LINES)
-      for point in creature.look_vec:
-          gl.glVertex3fv(point)
-      gl.glEnd()
-
-      gl.glColor3d(0.75,0,0)
-      gl.glBegin(gl.GL_QUADS)
-      for conn in creature.faces:
-        gl.glVertex3fv(creature.hitbox[conn])
-      gl.glEnd()
-
-
-      # gl.glColor3d(0, 0, 30/255)
-      # gl.glEnable(gl.GL_POINT_SMOOTH)
-      # gl.glPointSize(creature.size/2)
-      # gl.glBegin(gl.GL_POINTS)
-      # gl.glVertex3fv(creature.eye)
-      # gl.glEnd()
-
-
-
 
   def setRotX(self, val):
     self.rotX = val

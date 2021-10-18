@@ -1,6 +1,8 @@
 import numpy as np
 import OpenGL.GL as gl # python wrapping of OpenGL
 from OpenGL import GLU # OpenGL Utility Library, extends OpenGL functionality
+from OpenGL.arrays import vbo
+
 from config import *
 import random as r
 
@@ -12,7 +14,6 @@ class World(object):
       [1.0, -1.0, 1.0],
       [-1.0, -1.0, 1.0]]) * WORLD_SCALER
 
-    self.cubeIdxArray = np.array( [0,1,2, 2,3,0 ])
     self.outlineVtx = np.array((
     (1, -1, -1),
     (1, 1, -1),
@@ -38,37 +39,53 @@ class World(object):
     (5,4),
     (5,7)
     )
+
     self.energy_sources = []
+
+    self.floorVBO = vbo.VBO(np.reshape(self.cubeVtxArray,
+    (1, -1)).astype(np.float32))
+    self.cubeOutlineVBO = vbo.VBO(np.reshape(self.outlineVtx,
+    (1, -1)).astype(np.float32))
 
   def update(self):
     gl.glLineWidth(1.0)
-    gl.glBegin(gl.GL_LINES)
-    for edge in self.outlineEdges:
-      for point in edge:
-        gl.glColor3d(0,1,0)
-        gl.glVertex3fv(self.outlineVtx[point])
-    gl.glEnd()
+    # gl.glBegin(gl.GL_LINES)
+    # for edge in self.outlineEdges:
+    #   for point in edge:
+    #     gl.glColor3d(0,1,0)
+    #     gl.glVertex3fv(self.outlineVtx[point])
+    # gl.glEnd()
 
-    gl.glBegin(gl.GL_QUADS)
+    gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
+    self.cubeOutlineVBO.bind()
+    gl.glColor3d(0,1,0)
+    gl.glVertexPointer(3, gl.GL_FLOAT, 0, self.cubeOutlineVBO)
+    gl.glDrawElements(gl.GL_LINES, 24, gl.GL_UNSIGNED_INT, self.outlineEdges)
+    self.cubeOutlineVBO.unbind()
+    
+
+    self.floorVBO.bind()
     gl.glColor3d(200/255, 207/255, 0)
-    for vert in self.cubeVtxArray:
-      gl.glVertex3fv(vert)
-    gl.glEnd()
+    gl.glVertexPointer(3, gl.GL_FLOAT, 0, self.floorVBO)
+    gl.glDrawElements(gl.GL_QUADS, 4, gl.GL_UNSIGNED_INT, [0,1,2,3])
+    self.floorVBO.unbind()
+    gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
 
     self.growFood()
 
     if len(self.energy_sources) != 0:
-      gl.glColor3d(0, 117/255, 14/255)
-      gl.glBegin(gl.GL_QUADS)
       for e in self.energy_sources:
-        for vert in e.faces:
-          gl.glVertex3fv(e.hitbox[vert])
-      gl.glEnd()
-
+        gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
+        gl.glColor3d(0, 117/255, 14/255)
+        e.foodFaceVBO.bind()
+        gl.glVertexPointer(3, gl.GL_FLOAT, 0, e.foodFaceVBO)
+        gl.glDrawElements(gl.GL_QUADS, 24, gl.GL_UNSIGNED_INT, e.faces)
+        e.foodFaceVBO.unbind()
+        gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
 
   def growFood(self):
     if len(self.energy_sources)<=100 and r.random() <= 0.1:
-      pos = np.array([r.randint(-150, 150), -200, r.randint(-150, 150)])
+      pos = np.array([r.randint(-150, 150), -WORLD_SCALER, r.randint(-150, 150)])
       size = r.randrange(2, 8, 1)
       f = EnergySource(pos, size, size)
       self.energy_sources.append(f)
@@ -97,3 +114,7 @@ class EnergySource(object):
       2,3,6,7,
       4,5,6,7,
     )
+
+    self.foodFaceVBO = vbo.VBO(np.reshape(self.hitbox,
+    (1, -1)).astype(np.float32))
+    

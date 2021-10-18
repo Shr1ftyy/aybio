@@ -49,6 +49,7 @@ class Creature(object):
       [-(self.size/2),(self.size/2),(self.size/2)] # 1,3
     ]) + self.pos
 
+
     self.hitbox_edges = np.array([
       [0,1], [0,3], [0,4],
       [1,5], [1,2],
@@ -68,36 +69,59 @@ class Creature(object):
       4,5,6,7,
     )
 
+    self.t_faces = (
+      0,1,2,
+      1,2,3, # bottom
+      0,1,4,
+      1,5,4, # front 
+      1,2,5,
+      2,6,5, # right 
+      0,3,7,
+      0,4,7, # left
+      4,5,7,
+      5,6,7, # top
+      3,2,7,
+      2,6,7,
+    )
+
     self.look_vec= np.array([
       [0, 0 ,-(self.size)/2],
-      [0, 0,-(self.size)]
+      [0, 0,-1.5*(self.size)]
       ]) + self.pos# 0,0
 
+
   def move(self, vec):
+    # self.unbind_vbos()
     self.pos += vec
     self.hitbox += self.pos
     self.look_vec += self.pos
+    self.hitboxVBO = vbo.VBO(np.reshape(self.hitbox,
+    (1, -1)).astype(np.float32))
+    self.hitboxVBO.bind()
+
+    self.lookVBO = vbo.VBO(np.reshape(self.look_vec,
+    (1, -1)).astype(np.float32))
 
   def forward_thrust(self, mag):
     self.pos += self.pitch
 
   def rotate(self, pitch, yaw, roll):
-
+    # self.unbind_vbos()
     # We translate the creature to the origin, and rotate it about the base coordinate axes
     self.hitbox = np.array([
-      [self.pos[0] - (self.size/2), self.pos[1] - (self.size/2), self.pos[2] - (self.size/2)], # 0,0
-      [self.pos[0] + (self.size/2), self.pos[1] - (self.size/2), self.pos[2] - (self.size/2)], # 0,1
-      [self.pos[0] + (self.size/2), self.pos[1] - (self.size/2), self.pos[2] + (self.size/2)], # 0,2
-      [self.pos[0] - (self.size/2), self.pos[1] - (self.size/2), self.pos[2] + (self.size/2)], # 0,3
-      [self.pos[0] - (self.size/2), self.pos[1] + (self.size/2), self.pos[2] - (self.size/2)], # 1,0
-      [self.pos[0] + (self.size/2), self.pos[1] + (self.size/2), self.pos[2] - (self.size/2)], # 1,1
-      [self.pos[0] + (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)], # 1,2
-      [self.pos[0] - (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)] # 1,3
-    ]) - self.pos 
+      [-(self.size/2), -(self.size/2),-(self.size/2)], # 0,0
+      [(self.size/2), -(self.size/2),-(self.size/2)], # 0,1
+      [(self.size/2), -(self.size/2),(self.size/2)], # 0,2
+      [-(self.size/2), -(self.size/2),(self.size/2)], # 0,3
+      [-(self.size/2), (self.size/2),-(self.size/2)], # 1,0
+      [(self.size/2), (self.size/2),-(self.size/2)], # 1,1
+      [(self.size/2), (self.size/2),(self.size/2)], # 1,2
+      [-(self.size/2),(self.size/2),(self.size/2)] # 1,3
+    ])
 
     self.look_vec= np.array([
       [0, 0 ,-(self.size)/2],
-      [0, 0,-(self.size)]
+      [0, 0,-1.5*(self.size)]
       ]) 
 
     # pitch rotation matrix
@@ -129,6 +153,14 @@ class Creature(object):
     self.hitbox = self.hitbox + self.pos 
     self.look_vec = np.array([np.dot(np.dot(np.dot(R_x, vert), R_y), R_z) for vert in self.look_vec])
     self.look_vec = self.look_vec + self.pos 
+  
+    self.hitboxVBO = vbo.VBO(np.reshape(self.hitbox,
+    (1, -1)).astype(np.float32))
+    self.hitboxVBO.bind()
+
+    self.lookVBO = vbo.VBO(np.reshape(self.look_vec,
+    (1, -1)).astype(np.float32))
+
     
 
 def give_birth(c1:Creature, c2:Creature) -> Creature:
