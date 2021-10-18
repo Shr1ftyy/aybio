@@ -27,16 +27,28 @@ class Creature(object):
     self.yaw = 0
     self.roll = 0
     # self.age = age
+    # self.hitbox = np.array([
+    #   [self.pos[0] - (self.size/2), self.pos[1] - (self.size/2), self.pos[2] - (self.size/2)], # 0,0
+    #   [self.pos[0] + (self.size/2), self.pos[1] - (self.size/2), self.pos[2] - (self.size/2)], # 0,1
+    #   [self.pos[0] + (self.size/2), self.pos[1] - (self.size/2), self.pos[2] + (self.size/2)], # 0,2
+    #   [self.pos[0] - (self.size/2), self.pos[1] - (self.size/2), self.pos[2] + (self.size/2)], # 0,3
+    #   [self.pos[0] - (self.size/2), self.pos[1] + (self.size/2), self.pos[2] - (self.size/2)], # 1,0
+    #   [self.pos[0] + (self.size/2), self.pos[1] + (self.size/2), self.pos[2] - (self.size/2)], # 1,1
+    #   [self.pos[0] + (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)], # 1,2
+    #   [self.pos[0] - (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)], # 1,3
+    # ])
+
     self.hitbox = np.array([
-      [self.pos[0] - (self.size/2), self.pos[1] - (self.size/2), self.pos[2] - (self.size/2)], # 0,0
-      [self.pos[0] + (self.size/2), self.pos[1] - (self.size/2), self.pos[2] - (self.size/2)], # 0,1
-      [self.pos[0] + (self.size/2), self.pos[1] - (self.size/2), self.pos[2] + (self.size/2)], # 0,2
-      [self.pos[0] - (self.size/2), self.pos[1] - (self.size/2), self.pos[2] + (self.size/2)], # 0,3
-      [self.pos[0] - (self.size/2), self.pos[1] + (self.size/2), self.pos[2] - (self.size/2)], # 1,0
-      [self.pos[0] + (self.size/2), self.pos[1] + (self.size/2), self.pos[2] - (self.size/2)], # 1,1
-      [self.pos[0] + (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)], # 1,2
-      [self.pos[0] - (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)], # 1,3
-    ])
+      [-(self.size/2), -(self.size/2),-(self.size/2)], # 0,0
+      [(self.size/2), -(self.size/2),-(self.size/2)], # 0,1
+      [(self.size/2), -(self.size/2),(self.size/2)], # 0,2
+      [-(self.size/2), -(self.size/2),(self.size/2)], # 0,3
+      [-(self.size/2), (self.size/2),-(self.size/2)], # 1,0
+      [(self.size/2), (self.size/2),-(self.size/2)], # 1,1
+      [(self.size/2), (self.size/2),(self.size/2)], # 1,2
+      [-(self.size/2),(self.size/2),(self.size/2)] # 1,3
+    ]) + self.pos
+
     self.hitbox_edges = np.array([
       [0,1], [0,3], [0,4],
       [1,5], [1,2],
@@ -47,22 +59,27 @@ class Creature(object):
       [6, 7]
     ])
 
-    self.eye = np.array([self.pos[0], self.pos[1] , self.pos[2]  - (self.size/2)])
+    self.faces = (
+      0,1,2,3,
+      0,1,5,4,
+      1,2,6,5,
+      3,0,4,7,
+      2,3,6,7,
+      4,5,6,7,
+    )
+
+    self.look_vec= np.array([
+      [0, 0 ,-(self.size)/2],
+      [0, 0,-(self.size)]
+      ]) + self.pos# 0,0
 
   def move(self, vec):
     self.pos += vec
     self.hitbox += self.pos
-    self.eye += vec
-    # self.hitbox = np.array([
-    #   [self.pos[0] - (self.size/2), self.pos[1] - (self.size/2), self.pos[2] - (self.size/2)], # 0,0
-    #   [self.pos[0] + (self.size/2), self.pos[1] - (self.size/2), self.pos[2] - (self.size/2)], # 0,1
-    #   [self.pos[0] + (self.size/2), self.pos[1] - (self.size/2), self.pos[2] + (self.size/2)], # 0,2
-    #   [self.pos[0] - (self.size/2), self.pos[1] - (self.size/2), self.pos[2] + (self.size/2)], # 0,3
-    #   [self.pos[0] - (self.size/2), self.pos[1] + (self.size/2), self.pos[2] - (self.size/2)], # 1,0
-    #   [self.pos[0] + (self.size/2), self.pos[1] + (self.size/2), self.pos[2] - (self.size/2)], # 1,1
-    #   [self.pos[0] + (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)], # 1,2
-    #   [self.pos[0] - (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)] # 1,3
-    # ])
+    self.look_vec += self.pos
+
+  def forward_thrust(self, mag):
+    self.pos += self.pitch
 
   def rotate(self, pitch, yaw, roll):
 
@@ -77,7 +94,11 @@ class Creature(object):
       [self.pos[0] + (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)], # 1,2
       [self.pos[0] - (self.size/2), self.pos[1] + (self.size/2), self.pos[2] + (self.size/2)] # 1,3
     ]) - self.pos 
-    self.eye = np.array([self.pos[0], self.pos[1] , self.pos[2]  - (self.size/2)]) - self.pos
+
+    self.look_vec= np.array([
+      [0, 0 ,-(self.size)/2],
+      [0, 0,-(self.size)]
+      ]) 
 
     # pitch rotation matrix
     self.pitch += pitch
@@ -105,14 +126,9 @@ class Creature(object):
 
     # Apply rotation matrices and translate them back their original position
     self.hitbox = np.array([np.dot(np.dot(np.dot(R_x, vert), R_y), R_z) for vert in self.hitbox])
-    self.hitbox = self.hitbox + np.array([self.pos[0], self.pos[1], self.pos[2]])
-
-    self.eye = np.dot(np.dot(np.dot(R_x, self.eye), R_y), R_z)
-    self.eye = self.eye + np.array([self.pos[0], self.pos[1], self.pos[2]])
-
-    
-
-    
+    self.hitbox = self.hitbox + self.pos 
+    self.look_vec = np.array([np.dot(np.dot(np.dot(R_x, vert), R_y), R_z) for vert in self.look_vec])
+    self.look_vec = self.look_vec + self.pos 
     
 
 def give_birth(c1:Creature, c2:Creature) -> Creature:

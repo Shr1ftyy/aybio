@@ -41,6 +41,7 @@ class World(object):
     self.energy_sources = []
 
   def update(self):
+    gl.glLineWidth(1.0)
     gl.glBegin(gl.GL_LINES)
     for edge in self.outlineEdges:
       for point in edge:
@@ -91,7 +92,8 @@ class EnergySource(object):
     self.faces = (
       0,1,2,3,
       0,1,5,4,
-      0,1,5,6,
-      3,0,4,6,
+      1,2,6,5,
+      3,0,4,7,
+      2,3,6,7,
       4,5,6,7,
     )

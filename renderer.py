@@ -1,12 +1,15 @@
-from OpenGL.raw.GL.VERSION.GL_1_0 import GL_QUADS
+# from OpenGL.raw.GL.VERSION.GL_1_0 import GL_QUADS, glReadPixels
+from OpenGL.raw.GL.VERSION.GL_1_0 import glViewport
 from PyQt5 import QtCore # core Qt functionality, QtWidgets
 from PyQt5 import QtGui # extends QtCore with GUI functionality, QtWidgets
 from PyQt5 import QtOpenGL # provides QGLWidget, QtWidgets,a special OpenGL QWidget)
 from PyQt5 import QtWidgets
 import OpenGL.GL as gl # python wrapping of OpenGL
+import OpenGL.GLUT as glut # python wrapping of OpenGL
 from OpenGL import GLU # OpenGL Utility Library, extends OpenGL functionality
 import sys # we'll need this later to run our Qt application
 import random as r
+import cv2
 from datetime import datetime
 
 from world import World
@@ -16,16 +19,15 @@ from config import *
 from OpenGL.arrays import vbo
 import numpy as np
 
-class GLWidget(QtOpenGL.QGLWidget):
+class GLWidget(QtWidgets.QOpenGLWidget):
   def __init__(self, parent=None):
-    self.parent = parent
-    QtOpenGL.QGLWidget.__init__(self, parent)
+    QtWidgets.QOpenGLWidget.__init__(self, parent)
     self.world = World()
     self.FPS = 0
     self.parent = parent
 
   def initializeGL(self):
-    self.qglClearColor(QtGui.QColor(1, 100, 128)) # initialize the screen to blue
+    gl.glClearColor(1/255, 100/255, 128/255, 1) # initialize the screen to blue
     gl.glEnable(gl.GL_DEPTH_TEST) # enable depth testing
 
     self.world.initWorld()
@@ -62,13 +64,16 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     self.world.update()
     self.updateLife()
+    print(gl.glGetIntegerv(gl.GL_VIEWPORT))
+    width, height = gl.glGetIntegerv(gl.GL_VIEWPORT)[-2], gl.glGetIntegerv(gl.GL_VIEWPORT)[-1]
+    frame = gl.glReadPixels(0, 0, height, width, gl.GL_BGR, gl.GL_FLOAT)
+    cv2.imshow('frame', frame)
     self.t += 1
     time_passed = datetime.now() - self.start_time
     # print(time_passed.microseconds/1000)
     self.FPS = 1000.0/(time_passed.microseconds/1000)
     self.parent.fps_counter.setText(str(int(self.FPS)) + ' FPS')
     self.parent.fps_counter.resize(int(self.parent.width()/5), int(self.parent.height()/5))
-    self.parent.repaint()
 
     gl.glPopMatrix() # restore the previous modelview matrix
 
@@ -89,6 +94,7 @@ class GLWidget(QtOpenGL.QGLWidget):
       creature.move(np.array([r.randint(-1,1), r.randint(-1,1), r.randint(-1,1)]))
       # creature.move(np.array([1,0,0]))
       creature.rotate(pitch=np.pi/160, yaw=0, roll=np.pi/160)
+      gl.glLineWidth(2.0)
       gl.glColor3d(1,0,1)
       gl.glBegin(gl.GL_LINES)
       for conn in creature.hitbox_edges:
@@ -96,12 +102,27 @@ class GLWidget(QtOpenGL.QGLWidget):
           gl.glVertex3fv(creature.hitbox[point])
       gl.glEnd()
 
-      gl.glColor3d(150/255, 0, 30/255)
-      gl.glEnable(gl.GL_POINT_SMOOTH)
-      gl.glPointSize(creature.size/2)
-      gl.glBegin(gl.GL_POINTS)
-      gl.glVertex3fv(creature.eye)
+      gl.glLineWidth(1.0)
+      gl.glColor3d(0, 0, 0)
+      gl.glBegin(gl.GL_LINES)
+      for point in creature.look_vec:
+          gl.glVertex3fv(point)
       gl.glEnd()
+
+      gl.glColor3d(0.75,0,0)
+      gl.glBegin(gl.GL_QUADS)
+      for conn in creature.faces:
+        gl.glVertex3fv(creature.hitbox[conn])
+      gl.glEnd()
+
+
+      # gl.glColor3d(0, 0, 30/255)
+      # gl.glEnable(gl.GL_POINT_SMOOTH)
+      # gl.glPointSize(creature.size/2)
+      # gl.glBegin(gl.GL_POINTS)
+      # gl.glVertex3fv(creature.eye)
+      # gl.glEnd()
+
 
 
 
@@ -130,7 +151,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     timer = QtCore.QTimer(self)
     timer.setInterval(5) # period, in milliseconds
-    timer.timeout.connect(self.glWidget.updateGL)
+    timer.timeout.connect(self.glWidget.update)
     timer.start()
 
   def initGUI(self):
@@ -143,31 +164,27 @@ class MainWindow(QtWidgets.QMainWindow):
     gui_layout.addWidget(self.glWidget)
 
     self.fps_counter = QtWidgets.QLabel(self)
-    self.fps_counter.setText(str(self.glWidget.FPS) + ' FPS')
-    self.fps_counter.resize(int(self.width()/5), int(self.height()/5))
+    # self.fps_counter.setText(str(self.glWidget.FPS) + ' FPS')
+    # self.fps_counter.resize(int(self.width()/5), int(self.height()/5))
 
     sliderX = QtWidgets.QSlider(QtCore.Qt.Horizontal)
     sliderX.setMinimum(0)
     sliderX.setMaximum(360)
-    sliderX.setValue(INIT_ROT_X)
     sliderX.valueChanged.connect(lambda val: self.glWidget.setRotX(val))
 
     sliderY = QtWidgets.QSlider(QtCore.Qt.Horizontal)
     sliderY.setMinimum(0)
     sliderY.setMaximum(360)
-    sliderY.setValue(INIT_ROT_Y)
     sliderY.valueChanged.connect(lambda val: self.glWidget.setRotY(val))
 
     sliderZ = QtWidgets.QSlider(QtCore.Qt.Horizontal)
     sliderZ.setMinimum(0)
     sliderZ.setMaximum(360)
-    sliderZ.setValue(INIT_ROT_Z)
     sliderZ.valueChanged.connect(lambda val: self.glWidget.setRotZ(val))
 
     sliderW = QtWidgets.QSlider(QtCore.Qt.Horizontal)
     sliderW.setMinimum(1)
     sliderW.setMaximum(100)
-    sliderW.setValue(ZOOM_SCALE)
     sliderW.valueChanged.connect(lambda val: self.glWidget.setZoom(val))
 
     gui_layout.addWidget(sliderX)
