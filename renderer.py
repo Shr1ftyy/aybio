@@ -7,8 +7,8 @@ import OpenGL.GLUT as glut # python wrapping of OpenGL
 from OpenGL import GLU # OpenGL Utility Library, extends OpenGL functionality
 import sys # we'll need this later to run our Qt application
 import random as r
-import cv2
 from datetime import datetime
+import cv2
 
 from world import World
 from creatures import Creature
@@ -68,7 +68,6 @@ class GLWidget(QtWidgets.QOpenGLWidget):
     # print(time_passed.microseconds/1000)
     self.FPS = 1000.0/(time_passed.microseconds/1000)
     self.parent.fps_counter.setText(str(int(self.FPS)) + ' FPS')
-    self.parent.fps_counter.resize(int(self.parent.width()/5), int(self.parent.height()/5))
     gl.glPopMatrix() # restore the previous modelview matrix
 
   def updateLife(self):
