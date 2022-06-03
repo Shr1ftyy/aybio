@@ -11,13 +11,14 @@ Of course, this isn't another toy project, I'm going to make it as performant an
 
 The entire stack aims to adhere to the following design principles:
  - Performance - it should do everything it possible can to be as performant as possible without
-   interfering without getting in the way of adhereing to the other principles
+   without getting in the way of adhereing to the other principles
  - Simplicity - it should be easy for one to put together how everything works
  - Minimal Dependendence - shouldn't depend on dozens of different libraries to do dozens of 
    different things.
  - ~~Desktop-hardware platform agnosticity - should be able perform parallel computations on 
    both NVIDIA and AMD's GPUs --- think more about this later, might end up using 
    wgpu to make this happen.~~ -- GOING TO WRITE OPENCL KERNEL PROGRAMS FOR THIS.
+   - going to use pyopencl with gl interop.  (see https://github.com/Shr1ftyy/OpenCL)
 
 I am thinking of writing the backend as an ECS-like system:
 
