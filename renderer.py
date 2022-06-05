@@ -1,6 +1,6 @@
 from PyQt5 import QtCore # core Qt functionality, QtWidgets
-from PyQt5 import QtGui # extends QtCore with GUI functionality, QtWidgets
-from PyQt5 import QtOpenGL # provides QGLWidget, QtWidgets,a special OpenGL QWidget)
+# from PyQt5 import QtGui # extends QtCore with GUI functionality, QtWidgets
+# from PyQt5 import QtOpenGL # provides QGLWidget, QtWidgets,a special OpenGL QWidget)
 from PyQt5 import QtWidgets
 import OpenGL.GL as gl # python wrapping of OpenGL
 import OpenGL.GLUT as glut # python wrapping of OpenGL
@@ -8,7 +8,6 @@ from OpenGL import GLU # OpenGL Utility Library, extends OpenGL functionality
 import sys # we'll need this later to run our Qt application
 import random as r
 from datetime import datetime
-import cv2
 
 from world import World
 from creatures import Creature
@@ -60,9 +59,9 @@ class GLWidget(QtWidgets.QOpenGLWidget):
 
     self.world.update()
     self.updateLife()
-    width, height = gl.glGetIntegerv(gl.GL_VIEWPORT)[-2], gl.glGetIntegerv(gl.GL_VIEWPORT)[-1]
-    frame = gl.glReadPixels(0, 0, height, width, gl.GL_BGR, gl.GL_FLOAT)
-    cv2.imshow('frame', frame)
+    # width, height = gl.glGetIntegerv(gl.GL_VIEWPORT)[-2], gl.glGetIntegerv(gl.GL_VIEWPORT)[-1]
+    # frame = gl.glReadPixels(0, 0, height, width, gl.GL_BGR, gl.GL_FLOAT)
+    # cv2.imshow('frame', frame)
     self.t += 1
     time_passed = datetime.now() - self.start_time
     # print(time_passed.microseconds/1000)
