@@ -46,7 +46,7 @@ class GLWidget(QtWidgets.QOpenGLWidget):
     gl.glMatrixMode(gl.GL_MODELVIEW)
 
   def paintGL(self):
-    self.start_time = datetime.now()
+    start_time = datetime.now()
     gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
     gl.glPushMatrix() # push the current matrix to the current stack
@@ -63,7 +63,7 @@ class GLWidget(QtWidgets.QOpenGLWidget):
     # frame = gl.glReadPixels(0, 0, height, width, gl.GL_BGR, gl.GL_FLOAT)
     # cv2.imshow('frame', frame)
     self.t += 1
-    time_passed = datetime.now() - self.start_time
+    time_passed = datetime.now() - start_time
     # print(time_passed.microseconds/1000)
     self.FPS = 1000.0/(time_passed.microseconds/1000)
     self.parent.fps_counter.setText(str(int(self.FPS)) + ' FPS')
@@ -73,7 +73,7 @@ class GLWidget(QtWidgets.QOpenGLWidget):
     for creature in self.creatures:
       gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
       creature.move(np.array([r.randint(-1,1), r.randint(-1,1), r.randint(-1,1)]))
-      # # creature.move(np.array([1,0,0]))
+      # creature.move(np.array([1,0,0]))
       creature.rotate(pitch=np.pi/160, yaw=0, roll=np.pi/160)
       gl.glLineWidth(2.0)
       gl.glColor3d(1,0,1)

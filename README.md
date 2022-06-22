@@ -31,6 +31,9 @@ I am thinking of writing the backend as an ECS-like system:
      - Can perform "actions"
      - Has to "perform well" in the "world"
 
+TODO:
+ - Figure out how to cleanly process different povs (creatures' pov) -> read more of https://gitlab.com/wikibooks-opengl/modern-tutorials/-/blob/master/mini-portal/mini-portal.cpp and learn more GLM.
+ - Once I'm done making a shitty version of the sim, optimize. 
 
 JUNK (This is not indented to be readable for anyone else but me, but I put it here cos y not):
   Brainstorming - What exactly do I want to make?:

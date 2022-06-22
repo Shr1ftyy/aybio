@@ -49,6 +49,8 @@ class Creature(object):
       [-(self.size/2),(self.size/2),(self.size/2)] # 1,3
     ]) + self.pos
 
+    self.hitboxVBO = vbo.VBO(np.reshape(self.hitbox,
+    (1, -1)).astype(np.float32)) 
 
     self.hitbox_edges = np.array([
       [0,1], [0,3], [0,4],
@@ -88,6 +90,9 @@ class Creature(object):
       [0, 0 ,-(self.size)/2],
       [0, 0,-1.5*(self.size)]
       ]) + self.pos# 0,0
+
+    self.lookVBO = vbo.VBO(np.reshape(self.look_vec,
+    (1, -1)).astype(np.float32))
 
 
   def move(self, vec):
